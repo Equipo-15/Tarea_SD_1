@@ -1,4 +1,5 @@
 from datetime import datetime
+import json
 import os
 
 class Tarea:
@@ -167,11 +168,12 @@ class Tarea:
         else:
             print("No se encontró la tarea con ese título.")
 
-def verificar_credenciales(usuario, contrasena):
-    credenciales = {
-        "admin": "1234",
-        "usuario1": "pass123",
-    }
+def cargar_credenciales(archivo):
+    with open(archivo, 'r') as f:
+        return json.load(f)
+
+def verificar_credenciales(usuario, contrasena, archivo):
+    credenciales = cargar_credenciales(archivo)
     return credenciales.get(usuario) == contrasena
 
 def mostrar_tareas_usuario(usuario):
@@ -187,6 +189,45 @@ def mostrar_tareas_usuario(usuario):
                       f"Etiqueta: {etiqueta}\nNombre de archivo: {nombre_archivo}\nFila: {fila_archivo}\n")
     else:
         print(f"El usuario {usuario} no tiene tareas guardadas.")
+
+def agregar_credenciales(usuario, contrasena, archivo):
+    credenciales = cargar_credenciales(archivo)
+    credenciales[usuario] = contrasena
+    guardar_credenciales(credenciales, archivo)
+
+# Menú interactivo
+def menu_credenciales():
+    archivo = 'credenciales.json'
+    
+    while True:
+        print("\n--- Menú de Credenciales ---")
+        print("1. Verificar credenciales")
+        print("2. Agregar credenciales")
+        print("3. Salir")
+        
+        opcion = input("Selecciona una opción: ")
+        
+        if opcion == '1':
+            usuario = input("Ingresa el usuario: ")
+            contrasena = input("Ingresa la contraseña: ")
+            if verificar_credenciales(usuario, contrasena, archivo):
+                print("Acceso concedido")
+                return(usuario)
+            else:
+                print("Acceso denegado")
+        
+        elif opcion == '2':
+            usuario = input("Ingresa el nuevo usuario: ")
+            contrasena = input("Ingresa la nueva contraseña: ")
+            agregar_credenciales(usuario, contrasena, archivo)
+            print("Credenciales agregadas exitosamente")
+        
+        elif opcion == '3':
+            print("Saliendo del programa...")
+            break
+        
+        else:
+            print("Opción no válida, por favor selecciona una opción correcta.")
 
 def menu(usuario):
     while True:
@@ -219,16 +260,9 @@ def menu(usuario):
         else:
             print("Opción no válida. Intente de nuevo.")
 
-# Solicitar usuario y contraseña al iniciar el programa
-while True:
-    usuario = input("Ingrese su usuario: ")
-    contrasena = input("Ingrese su contraseña: ")
+archivo = 'credenciales.json'
+credenciales = cargar_credenciales(archivo)
 
-    if verificar_credenciales(usuario, contrasena):
-        print("Acceso concedido.")
-        break
-    else:
-        print("Credenciales incorrectas. Intente nuevamente.")
-
+usuario = menu_credenciales()
 # Mostrar el menú de tareas para el usuario autenticado
 menu(usuario)
