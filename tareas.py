@@ -1,36 +1,192 @@
 from datetime import datetime
+import os
 
 class Tarea:
-    def __init__(self, titulo, descripcion, etiqueta):
-        self.titulo = titulo
-        self.descripcion = descripcion
-        self.fecha_inicio = self.ingresar_fecha(1)  # Llamada a la función durante la creación
-        self.fecha_vencimiento = self.ingresar_fecha(2)  # Llamada a la función durante la creación
-        self.etiqueta = etiqueta
+    ETIQUETAS_PREDEFINIDAS = ["Trabajo", "Personal", "Urgente", "Reunión", "Estudio"]
+
+    def __init__(self, titulo=None, descripcion=None, fecha_inicio=None, fecha_vencimiento=None, etiqueta=None, nombre_archivo=None, fila_archivo=None):
+        if not titulo:
+            self.titulo = self.ingresar_dato("Título")
+            self.descripcion = self.ingresar_dato("Descripción")
+            self.fecha_inicio = self.ingresar_fecha("inicio")
+            self.fecha_vencimiento = self.ingresar_fecha("vencimiento")
+            self.etiqueta = self.seleccionar_etiqueta()
+            self.nombre_archivo = self.ingresar_dato("Nombre de archivo")
+            self.fila_archivo = self.ingresar_dato("Fila")
+        else:
+            self.titulo = titulo
+            self.descripcion = descripcion
+            self.fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d %H:%M')
+            self.fecha_vencimiento = datetime.strptime(fecha_vencimiento, '%Y-%m-%d %H:%M')
+            self.etiqueta = etiqueta
+            self.nombre_archivo = nombre_archivo
+            self.fila_archivo = fila_archivo
+
+    def ingresar_dato(self, dato):
+        entrada = input(f"Ingresar {dato}: ")
+        return entrada
 
     def ingresar_fecha(self, option):
         while True:
             try:
-                if option==1:
+                if option == "inicio":
                     entrada = input("Ingrese la fecha y hora de inicio (YYYY-MM-DD HH:MM): ")
-                elif option==2:
+                elif option == "vencimiento":
                     entrada = input("Ingrese la fecha y hora de vencimiento (YYYY-MM-DD HH:MM): ")
                 fecha = datetime.strptime(entrada, '%Y-%m-%d %H:%M')
                 return fecha
             except ValueError:
                 print("Formato de fecha y hora incorrecto. Por favor, ingrese la fecha en el formato 'YYYY-MM-DD HH:MM'.")
 
+    def seleccionar_etiqueta(self):
+        print("\n--- Selección de Etiquetas ---")
+        for i, etiqueta in enumerate(Tarea.ETIQUETAS_PREDEFINIDAS, start=1):
+            print(f"{i}. {etiqueta}")
+        print(f"{len(Tarea.ETIQUETAS_PREDEFINIDAS) + 1}. Ingresar una etiqueta personalizada")
+
+        while True:
+            opcion = input("Seleccione una opción: ")
+
+            if opcion.isdigit():
+                opcion = int(opcion)
+
+                if 1 <= opcion <= len(Tarea.ETIQUETAS_PREDEFINIDAS):
+                    return Tarea.ETIQUETAS_PREDEFINIDAS[opcion - 1]
+                elif opcion == len(Tarea.ETIQUETAS_PREDEFINIDAS) + 1:
+                    return self.ingresar_dato("Etiqueta personalizada")
+                else:
+                    print("Opción no válida, intente de nuevo.")
+            else:
+                print("Entrada inválida, debe ingresar un número.")
+
     def mostrar_tarea(self):
-        fecha_inicio_formateada = self.fecha_vencimiento.strftime('%Y-%m-%d %H:%M')
+        fecha_inicio_formateada = self.fecha_inicio.strftime('%Y-%m-%d %H:%M')
         fecha_vencimiento_formateada = self.fecha_vencimiento.strftime('%Y-%m-%d %H:%M')
         return (f"Título: {self.titulo}\n"
                 f"Descripción: {self.descripcion}\n"
                 f"Fecha de Inicio: {fecha_inicio_formateada}\n"
                 f"Fecha de Vencimiento: {fecha_vencimiento_formateada}\n"
-                f"Etiqueta: {self.etiqueta}")
+                f"Etiqueta: {self.etiqueta}\n"
+                f"Nombre de archivo: {self.nombre_archivo}\n"
+                f"Fila: {self.fila_archivo}")
 
-# Crear una instancia de Tarea
-tarea1 = Tarea("Entregar informe", "Preparar el informe mensual para la reunión", "trabajo")
+    def guardar_en_archivo(self, usuario):
+        archivo = f"{usuario}_tareas.txt"
+        with open(archivo, 'a') as file:
+            file.write(f"{self.titulo}|{self.descripcion}|"
+                       f"{self.fecha_inicio.strftime('%Y-%m-%d %H:%M')}|"
+                       f"{self.fecha_vencimiento.strftime('%Y-%m-%d %H:%M')}|"
+                       f"{self.etiqueta}|{self.nombre_archivo}|{self.fila_archivo}\n")
 
-# Mostrar la información de la tarea
-print(tarea1.mostrar_tarea())
+    @staticmethod
+    def eliminar_tarea(usuario, titulo):
+        archivo = f"{usuario}_tareas.txt"
+        if not os.path.exists(archivo):
+            print("No hay tareas que eliminar.")
+            return
+
+        with open(archivo, 'r') as file:
+            tareas = file.readlines()
+
+        tareas_modificadas = [tarea for tarea in tareas if not tarea.startswith(titulo + "|")]
+
+        if len(tareas) == len(tareas_modificadas):
+            print("No se encontró la tarea con ese título.")
+        else:
+            with open(archivo, 'w') as file:
+                file.writelines(tareas_modificadas)
+            print("Tarea eliminada con éxito.")
+
+    @staticmethod
+    def modificar_tarea(usuario, titulo):
+        archivo = f"{usuario}_tareas.txt"
+        if not os.path.exists(archivo):
+            print("No hay tareas para modificar.")
+            return
+
+        with open(archivo, 'r') as file:
+            tareas = file.readlines()
+
+        tareas_modificadas = []
+        tarea_encontrada = False
+        for tarea in tareas:
+            if tarea.startswith(titulo + "|"):
+                print("Modificando tarea...")
+                nueva_tarea = Tarea()  # Crear una nueva tarea con los datos modificados
+                tarea_encontrada = True
+                tareas_modificadas.append(f"{nueva_tarea.titulo}|{nueva_tarea.descripcion}|"
+                                          f"{nueva_tarea.fecha_inicio.strftime('%Y-%m-%d %H:%M')}|"
+                                          f"{nueva_tarea.fecha_vencimiento.strftime('%Y-%m-%d %H:%M')}|"
+                                          f"{nueva_tarea.etiqueta}|{nueva_tarea.nombre_archivo}|{nueva_tarea.fila_archivo}\n")
+            else:
+                tareas_modificadas.append(tarea)
+
+        if tarea_encontrada:
+            with open(archivo, 'w') as file:
+                file.writelines(tareas_modificadas)
+            print("Tarea modificada con éxito.")
+        else:
+            print("No se encontró la tarea con ese título.")
+
+def verificar_credenciales(usuario, contrasena):
+    credenciales = {
+        "admin": "1234",
+        "usuario1": "pass123",
+    }
+    return credenciales.get(usuario) == contrasena
+
+def mostrar_tareas_usuario(usuario):
+    archivo = f"{usuario}_tareas.txt"
+    if os.path.exists(archivo):
+        print(f"Tareas de {usuario}:")
+        with open(archivo, 'r') as file:
+            tareas = file.readlines()
+            for tarea in tareas:
+                titulo, descripcion, fecha_inicio, fecha_vencimiento, etiqueta, nombre_archivo, fila_archivo = tarea.strip().split("|")
+                print(f"Título: {titulo}\nDescripción: {descripcion}\n"
+                      f"Fecha de Inicio: {fecha_inicio}\nFecha de Vencimiento: {fecha_vencimiento}\n"
+                      f"Etiqueta: {etiqueta}\nNombre de archivo: {nombre_archivo}\nFila: {fila_archivo}\n")
+    else:
+        print(f"El usuario {usuario} no tiene tareas guardadas.")
+
+def menu(usuario):
+    while True:
+        print("\n--- Menú de Tareas ---")
+        print("1. Ver tareas")
+        print("2. Agregar nueva tarea")
+        print("3. Modificar tarea")
+        print("4. Eliminar tarea")
+        print("5. Salir")
+
+        opcion = input("Seleccione una opción: ")
+
+        if opcion == "1":
+            mostrar_tareas_usuario(usuario)
+        elif opcion == "2":
+            tarea = Tarea()
+            tarea.guardar_en_archivo(usuario)
+        elif opcion == "3":
+            titulo = input("Ingrese el título de la tarea que desea modificar: ")
+            Tarea.modificar_tarea(usuario, titulo)
+        elif opcion == "4":
+            titulo = input("Ingrese el título de la tarea que desea eliminar: ")
+            Tarea.eliminar_tarea(usuario, titulo)
+        elif opcion == "5":
+            print("Saliendo del programa.")
+            break
+        else:
+            print("Opción no válida. Intente de nuevo.")
+
+# Solicitar usuario y contraseña al iniciar el programa
+while True:
+    usuario = input("Ingrese su usuario: ")
+    contrasena = input("Ingrese su contraseña: ")
+
+    if verificar_credenciales(usuario, contrasena):
+        print("Acceso concedido.")
+        break
+    else:
+        print("Credenciales incorrectas. Intente nuevamente.")
+
+# Mostrar el menú de tareas para el usuario autenticado
+menu(usuario)
