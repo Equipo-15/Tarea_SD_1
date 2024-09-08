@@ -3,6 +3,7 @@ import os
 
 class Tarea:
     ETIQUETAS_PREDEFINIDAS = ["Trabajo", "Personal", "Urgente", "Reunión", "Estudio"]
+    ESTADOS = ["En progreso", "Completada"]
 
     def __init__(self, titulo=None, descripcion=None, fecha_inicio=None, fecha_vencimiento=None, etiqueta=None, nombre_archivo=None, fila_archivo=None):
         if not titulo:
@@ -127,6 +128,44 @@ class Tarea:
             print("Tarea modificada con éxito.")
         else:
             print("No se encontró la tarea con ese título.")
+    
+    @staticmethod
+    def cambiar_estado(usuario, titulo):
+        archivo = f"{usuario}_tareas.txt"
+        if not os.path.exists(archivo):
+            print("No hay tareas para modificar el estado.")
+            return
+
+        with open(archivo, 'r') as file:
+            tareas = file.readlines()
+
+        tareas_modificadas = []
+        tarea_encontrada = False
+        for tarea in tareas:
+            datos = tarea.strip().split("|")
+            if datos[0] == titulo:
+                print("\n--- Cambiar Estado ---")
+                for i, estado in enumerate(Tarea.ESTADOS, start=1):
+                    print(f"{i}. {estado}")
+                opcion = input("Seleccione el nuevo estado: ")
+
+                if opcion.isdigit() and 1 <= int(opcion) <= len(Tarea.ESTADOS):
+                    nuevo_estado = Tarea.ESTADOS[int(opcion) - 1]
+                    datos[5] = nuevo_estado  # Actualizar el estado en los datos
+                    tarea_encontrada = True
+                    tareas_modificadas.append("|".join(datos) + "\n")
+                else:
+                    print("Opción no válida, el estado no fue cambiado.")
+                    return
+            else:
+                tareas_modificadas.append(tarea)
+
+        if tarea_encontrada:
+            with open(archivo, 'w') as file:
+                file.writelines(tareas_modificadas)
+            print("Estado de la tarea cambiado con éxito.")
+        else:
+            print("No se encontró la tarea con ese título.")
 
 def verificar_credenciales(usuario, contrasena):
     credenciales = {
@@ -172,6 +211,9 @@ def menu(usuario):
             titulo = input("Ingrese el título de la tarea que desea eliminar: ")
             Tarea.eliminar_tarea(usuario, titulo)
         elif opcion == "5":
+            titulo = input("Ingrese el título de la tarea que desea modifar el estado: ")
+            Tarea.cambiar_estado(usuario, titulo)
+        elif opcion == "6":
             print("Saliendo del programa.")
             break
         else:
