@@ -5,15 +5,16 @@ import os
 
 class Tarea:
     ETIQUETAS_PREDEFINIDAS = ["Trabajo", "Personal", "Urgente", "Reunión", "Estudio"]
-    ESTADOS = ["En progreso", "Completada"]
+    ESTADOS = ["Creada", "En progreso", "Completada"]
 
-    def __init__(self, titulo=None, descripcion=None, fecha_inicio=None, fecha_vencimiento=None, etiqueta=None):
+    def __init__(self, titulo=None, descripcion=None, fecha_inicio=None, fecha_vencimiento=None, etiqueta=None, estado=ESTADOS[0]):
         if not titulo:
             self.titulo = self.ingresar_dato("Título")
             self.descripcion = self.ingresar_dato("Descripción")
             self.fecha_inicio = self.ingresar_fecha("inicio")
             self.fecha_vencimiento = self.ingresar_fecha("vencimiento")
             self.etiqueta = self.seleccionar_etiqueta()
+            self.estado = estado
 
         else:
             self.titulo = titulo
@@ -21,6 +22,7 @@ class Tarea:
             self.fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d %H:%M')
             self.fecha_vencimiento = datetime.strptime(fecha_vencimiento, '%Y-%m-%d %H:%M')
             self.etiqueta = etiqueta
+            self.estado = estado
 
 
     def get_titulo(self):
@@ -99,6 +101,28 @@ class Tarea:
                 print("Entrada inválida, debe ingresar un número.")
 
     #
+    def seleccionar_estado(self):
+        print("\n--- Selección de Estado ---")
+        for i, etiqueta in enumerate(Tarea.ETIQUETAS_PREDEFINIDAS, start=1):
+            print(f"{i}. {etiqueta}")
+        print(f"{len(Tarea.ETIQUETAS_PREDEFINIDAS) + 1}. Ingresar una etiqueta personalizada")
+
+        while True:
+            opcion = input("Seleccione una opción: ")
+
+            if opcion.isdigit():
+                opcion = int(opcion)
+
+                if 1 <= opcion <= len(Tarea.ETIQUETAS_PREDEFINIDAS):
+                    return Tarea.ETIQUETAS_PREDEFINIDAS[opcion - 1]
+                elif opcion == len(Tarea.ETIQUETAS_PREDEFINIDAS) + 1:
+                    return self.ingresar_dato("Etiqueta personalizada")
+                else:
+                    print("Opción no válida, intente de nuevo.")
+            else:
+                print("Entrada inválida, debe ingresar un número.")
+
+    #
     def mostrar_tarea(self):
         fecha_inicio_formateada = self.fecha_inicio.strftime('%Y-%m-%d %H:%M')
         fecha_vencimiento_formateada = self.fecha_vencimiento.strftime('%Y-%m-%d %H:%M')
@@ -106,7 +130,8 @@ class Tarea:
                 f"Descripción: {self.descripcion}\n"
                 f"Fecha de Inicio: {fecha_inicio_formateada}\n"
                 f"Fecha de Vencimiento: {fecha_vencimiento_formateada}\n"
-                f"Etiqueta: {self.etiqueta}")
+                f"Etiqueta: {self.etiqueta}\n"
+                f"Estado: {self.estado}")
 
     #
     def guardar_en_archivo(self, usuario, logger):
@@ -116,7 +141,8 @@ class Tarea:
                 file.write(f"{self.titulo}|{self.descripcion}|"
                            f"{self.fecha_inicio.strftime('%Y-%m-%d %H:%M')}|"
                            f"{self.fecha_vencimiento.strftime('%Y-%m-%d %H:%M')}|"
-                           f"{self.etiqueta}\n")
+                           f"{self.etiqueta}|"
+                           f"{self.estado}\n")
             logger.info("Tarea guardada en archivo")
         except:
             logger.warning("Ocurrio un problema al guardar la tarea")
@@ -230,7 +256,7 @@ class Tarea:
                     tareas_modificadas.append(f"{nueva_tarea.titulo}|{nueva_tarea.descripcion}|"
                                               f"{nueva_tarea.fecha_inicio.strftime('%Y-%m-%d %H:%M')}|"
                                               f"{nueva_tarea.fecha_vencimiento.strftime('%Y-%m-%d %H:%M')}|"
-                                              f"{nueva_tarea.etiqueta}|{nueva_tarea.nombre_archivo}|{nueva_tarea.fila_archivo}\n")
+                                              f"{nueva_tarea.etiqueta}|{nueva_tarea.estado}\n")
                 else:
                     tareas_modificadas.append(tarea)
 
@@ -302,7 +328,7 @@ class Tarea:
 
         print("\t Ingrese 1 para filtrar según titulo \n \t Ingrese 2 para filtrar según descripción \t")
         print("\t Ingrese 3 para filtrar según fecha de inicio \n \t Ingrese 4 para filtrar según fecha de vencimiento \t")
-        print("\t Ingrese 5 para filtrar según etiqueta \n")
+        print("\t Ingrese 5 para filtrar según etiqueta \n \t Ingrese 6 para filtrar según estado \n")
 
         opcion = input("Elija un campo para aplicar filtro: \n")
 
@@ -315,7 +341,7 @@ class Tarea:
                     campos = tarea.strip("\n").split("|")
 
                     if(campos[int(opcion) - 1] == filtro):
-                        new_tarea = Tarea(campos[0], campos[1], campos[2], campos[3], campos[4])
+                        new_tarea = Tarea(campos[0], campos[1], campos[2], campos[3], campos[4], campos[5])
                         print("* \t" + new_tarea.mostrar_tarea() + "\n")
             logger.info("Tareas mostradas con filtros aplicados")
 
@@ -332,9 +358,9 @@ class Tarea:
                 with open(archivo, 'r') as file:
                     tareas = file.readlines()
                     for tarea in tareas:
-                        titulo, descripcion, fecha_inicio, fecha_vencimiento, etiqueta = tarea.strip().split("|")
+                        titulo, descripcion, fecha_inicio, fecha_vencimiento, etiqueta, estado = tarea.strip().split("|")
                         print(f"Título: {titulo}\nDescripción: {descripcion}\n"
-                            f"Fecha de Inicio: {fecha_inicio}\nFecha de Vencimiento: {fecha_vencimiento}\nEtiqueta: {etiqueta}\n")
+                            f"Fecha de Inicio: {fecha_inicio}\nFecha de Vencimiento: {fecha_vencimiento}\nEtiqueta: {etiqueta}\nEstado: {estado}\n")
                 logger.info(f"Tareas del usuario {usuario} impresas en consola")
             else:
                 print(f"El usuario {usuario} no tiene tareas guardadas.")
@@ -615,7 +641,7 @@ def menu(usuario, logger):
         print(" ---- Bienvenido al sistema de Gestión de Tareas ---- \n")
         print(" --- Operaciones disponibles: --- \n")
 
-        print("\t Ingrese 1 para Crear tarea \n \t Ingrese 2 para Consultar tarea \t")
+        print("\t Ingrese 1 para Crear tarea \n \t Ingrese 2 para Mostrar tareas \t")
         print("\t Ingrese 3 para Actualizar tarea \n \t Ingrese 4 para Filtar tareas \t")
         print("\t Ingrese 5 para Eliminar tarea \n \t Ingrese 6 para modificar estado \t")
         print("\t Ingrese 7 para modificar etiquetas \n \t Ingrese 8 para salir del sistema \t")
