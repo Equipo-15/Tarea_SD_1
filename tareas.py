@@ -209,7 +209,7 @@ class Tarea:
             print("No se encontró la tarea con ese título.")
 
     @staticmethod
-    def filtrar_tarea(usuario, titulo):
+    def filtrar_tarea(usuario):
         archivo = f"{usuario}_tareas.txt"
         if not os.path.exists(archivo):
             print("No hay tareas para modificar el estado.")
@@ -229,11 +229,10 @@ class Tarea:
             with open(archivo, "r") as file:
                 db = file.readlines()
                 for tarea in db:
-                    campos = tarea.split("|")
-                    campos[-1] = campos[-1].strip("\n")
+                    campos = tarea.strip("\n").split("|")
 
                     if(campos[int(opcion) - 1] == filtro):
-                        new_tarea = Tarea(campos[0], campos[1], campos[2], campos[3], campos[4], campos[5], campos[6])
+                        new_tarea = Tarea(campos[0], campos[1], campos[2], campos[3], campos[4])
                         print("* \t" + new_tarea.mostrar_tarea() + "\n")
 
         except:
@@ -523,7 +522,7 @@ def menu(usuario):
             Tarea.modificar_tarea(usuario, titulo)
         elif opcion == "4":
             #filtrar
-            Tarea.filtrar_tarea(usuario, titulo)
+            Tarea.filtrar_tarea(usuario)
         elif opcion == "5":
             titulo = input("Ingrese el título de la tarea que desea eliminar: ")
             Tarea.eliminar_tarea(usuario, titulo)
