@@ -114,6 +114,48 @@ class Tarea:
                        f"{self.fecha_inicio.strftime('%Y-%m-%d %H:%M')}|"
                        f"{self.fecha_vencimiento.strftime('%Y-%m-%d %H:%M')}|"
                        f"{self.etiqueta}\n")
+    
+    def mostrar_etiquetas():
+        print("Etiquetas actuales:")
+        for etiqueta in Tarea.ETIQUETAS_PREDEFINIDAS:
+            print(f"- {etiqueta}")
+
+    # Función para agregar una etiqueta
+    def agregar_etiqueta(etiqueta):
+        if etiqueta not in Tarea.ETIQUETAS_PREDEFINIDAS:
+            ETIQUETAS_PREDEFINIDAS.append(etiqueta)
+            print(f"Etiqueta '{etiqueta}' agregada con éxito.")
+        else:
+            print(f"La etiqueta '{etiqueta}' ya existe.")
+
+    # Función para eliminar una etiqueta
+    def eliminar_etiqueta(etiqueta):
+        if etiqueta in Tarea.ETIQUETAS_PREDEFINIDAS:
+            ETIQUETAS_PREDEFINIDAS.remove(etiqueta)
+            print(f"Etiqueta '{etiqueta}' eliminada con éxito.")
+        else:
+            print(f"La etiqueta '{etiqueta}' no existe.")
+
+    @staticmethod
+    def editar_etiqueta():
+        print("\n--- Menú de edición de Etiquetas ---")
+        print("1. Mostrar etiquetas")
+        print("2. Agregar etiqueta")
+        print("3. Eliminar etiqueta")
+        print("4. salir")
+        opcion = input("Elija una operación: \n")
+
+        if opcion == "1" :
+            print("Etiquetas existentes:\n")
+            Tarea.mostrar_etiquetas()
+        elif opcion == "2":
+            etiqueta = input("Ingrese nombre de nueva etiqueta:")
+            Tarea.agregar_etiqueta(etiqueta)
+        elif opcion == "3":
+            etiqueta = input("Ingrese nombre de a eliminar:")
+            Tarea.eliminar_etiqueta(etiqueta)
+        elif opcion == "3":
+            print("volviendo a menú\n")     
 
     #
     @staticmethod
@@ -507,7 +549,7 @@ def menu(usuario):
         print("\t Ingrese 1 para Crear tarea \n \t Ingrese 2 para Consultar tarea \t")
         print("\t Ingrese 3 para Actualizar tarea \n \t Ingrese 4 para Filtar tareas \t")
         print("\t Ingrese 5 para Eliminar tarea \n \t Ingrese 6 para modificar estado \t")
-        print("\t Ingrese 7 del sistema \t")
+        print("\t Ingrese 7 para modificar etiquetas \n \t Ingrese 8 para salir del sistema \t")
         opcion = input("Elija una operación: \n")
 
         if opcion == "1":
@@ -528,6 +570,8 @@ def menu(usuario):
             titulo = input("Ingrese el título de la tarea que desea modifar el estado: ")
             Tarea.cambiar_estado(usuario, titulo)
         elif opcion == "7":
+            Tarea.editar_etiqueta()
+        elif opcion == "8":
             print("Saliendo del programa.")
             break
         else:
