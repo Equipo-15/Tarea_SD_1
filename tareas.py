@@ -210,6 +210,54 @@ class Tarea:
         else:
             print("No se encontró la tarea con ese título.")
 
+    @staticmethod
+    def filtrar_tarea(usuario, titulo):
+        archivo = f"{usuario}_tareas.txt"
+        if not os.path.exists(archivo):
+            print("No hay tareas para modificar el estado.")
+            return
+        
+        print(" -- Filtrado de Tareas -- \n")
+
+        print("\t Ingrese 1 para filtrar según titulo \n \t Ingrese 2 para filtrar según descripción \t")
+        print("\t Ingrese 3 para filtrar según fecha de inicio \n \t Ingrese 4 para filtrar según fecha de vencimiento \t")
+        print("\t Ingrese 5 para filtrar según etiqueta \n")
+
+        opcion = input("Elija un campo para aplicar filtro: \n")
+
+        filtro = input("Elija el filtro a aplicar (campo igual a): \n")
+
+        try:
+            with open(archivo, "r") as file:
+                db = file.readlines()
+                for tarea in db:
+                    campos = tarea.split("|")
+                    campos[-1] = campos[-1].strip("\n")
+
+                    if(campos[int(opcion) - 1] == filtro):
+                        new_tarea = Tarea(campos[0], campos[1], campos[2], campos[3], campos[4], campos[5], campos[6])
+                        print("* \t" + new_tarea.mostrar_tarea() + "\n")
+
+        except:
+            print("Ocurrio un problema durante la operación. Por favor, intente nuevamente \n")
+
+        return
+    
+    @staticmethod
+    def mostrar_tareas_usuario(usuario):
+        archivo = f"{usuario}_tareas.txt"
+        if os.path.exists(archivo):
+            print(f"Tareas de {usuario}:")
+            with open(archivo, 'r') as file:
+                tareas = file.readlines()
+                for tarea in tareas:
+                    titulo, descripcion, fecha_inicio, fecha_vencimiento, etiqueta, nombre_archivo, fila_archivo = tarea.strip().split("|")
+                    print(f"Título: {titulo}\nDescripción: {descripcion}\n"
+                        f"Fecha de Inicio: {fecha_inicio}\nFecha de Vencimiento: {fecha_vencimiento}\n"
+                        f"Etiqueta: {etiqueta}\nNombre de archivo: {nombre_archivo}\nFila: {fila_archivo}\n")
+        else:
+            print(f"El usuario {usuario} no tiene tareas guardadas.")
+
 #
 def cargar_credenciales(archivo):
     with open(archivo, 'r') as f:
@@ -219,21 +267,6 @@ def cargar_credenciales(archivo):
 def verificar_credenciales(usuario, contrasena, archivo):
     credenciales = cargar_credenciales(archivo)
     return credenciales.get(usuario) == contrasena
-
-#
-def mostrar_tareas_usuario(usuario):
-    archivo = f"{usuario}_tareas.txt"
-    if os.path.exists(archivo):
-        print(f"Tareas de {usuario}:")
-        with open(archivo, 'r') as file:
-            tareas = file.readlines()
-            for tarea in tareas:
-                titulo, descripcion, fecha_inicio, fecha_vencimiento, etiqueta, nombre_archivo, fila_archivo = tarea.strip().split("|")
-                print(f"Título: {titulo}\nDescripción: {descripcion}\n"
-                      f"Fecha de Inicio: {fecha_inicio}\nFecha de Vencimiento: {fecha_vencimiento}\n"
-                      f"Etiqueta: {etiqueta}\nNombre de archivo: {nombre_archivo}\nFila: {fila_archivo}\n")
-    else:
-        print(f"El usuario {usuario} no tiene tareas guardadas.")
 
 # Función para guardar credenciales en un archivo JSON
 def guardar_credenciales(credenciales, archivo):
@@ -282,7 +315,7 @@ def menu_credenciales():
         else:
             print("Opción no válida, por favor selecciona una opción correcta.")
 
-
+"""
 #----------------------------------
 # Operaciones del Gestor de Tareas
 def crear_tarea():
@@ -469,7 +502,7 @@ def eliminar_tarea():
                 else:
                     print("Operación no existente. Por favor, ingrese una opción valida \n")
 
-
+"""
 
 #
 def menu(usuario):
@@ -487,13 +520,13 @@ def menu(usuario):
             tarea = Tarea()
             tarea.guardar_en_archivo(usuario)
         elif opcion == "2":
-            mostrar_tareas_usuario(usuario)
+            Tarea.mostrar_tareas_usuario(usuario)
         elif opcion == "3":
             titulo = input("Ingrese el título de la tarea que desea modificar: ")
             Tarea.modificar_tarea(usuario, titulo)
         elif opcion == "4":
             #filtrar
-            filtrar_tarea()
+            Tarea.filtrar_tarea(usuario, titulo)
         elif opcion == "5":
             titulo = input("Ingrese el título de la tarea que desea eliminar: ")
             Tarea.eliminar_tarea(usuario, titulo)
