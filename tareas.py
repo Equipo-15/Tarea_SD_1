@@ -104,9 +104,7 @@ class Tarea:
                 f"Descripción: {self.descripcion}\n"
                 f"Fecha de Inicio: {fecha_inicio_formateada}\n"
                 f"Fecha de Vencimiento: {fecha_vencimiento_formateada}\n"
-                f"Etiqueta: {self.etiqueta}\n"
-                f"Nombre de archivo: {self.nombre_archivo}\n"
-                f"Fila: {self.fila_archivo}")
+                f"Etiqueta: {self.etiqueta}")
 
     #
     def guardar_en_archivo(self, usuario):
