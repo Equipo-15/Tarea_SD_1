@@ -190,6 +190,11 @@ def mostrar_tareas_usuario(usuario):
     else:
         print(f"El usuario {usuario} no tiene tareas guardadas.")
 
+# Función para guardar credenciales en un archivo JSON
+def guardar_credenciales(credenciales, archivo):
+    with open(archivo, 'w') as f:
+        json.dump(credenciales, f)
+
 def agregar_credenciales(usuario, contrasena, archivo):
     credenciales = cargar_credenciales(archivo)
     credenciales[usuario] = contrasena
@@ -212,7 +217,9 @@ def menu_credenciales():
             contrasena = input("Ingresa la contraseña: ")
             if verificar_credenciales(usuario, contrasena, archivo):
                 print("Acceso concedido")
-                return(usuario)
+                #mostrar menú con usuario logeado
+                menu(usuario)
+                break
             else:
                 print("Acceso denegado")
         
@@ -236,7 +243,8 @@ def menu(usuario):
         print("2. Agregar nueva tarea")
         print("3. Modificar tarea")
         print("4. Eliminar tarea")
-        print("5. Salir")
+        print("5. Modificar estado")
+        print("6. Salir")
 
         opcion = input("Seleccione una opción: ")
 
@@ -264,5 +272,3 @@ archivo = 'credenciales.json'
 credenciales = cargar_credenciales(archivo)
 
 usuario = menu_credenciales()
-# Mostrar el menú de tareas para el usuario autenticado
-menu(usuario)
