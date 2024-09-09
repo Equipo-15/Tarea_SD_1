@@ -6,23 +6,21 @@ class Tarea:
     ETIQUETAS_PREDEFINIDAS = ["Trabajo", "Personal", "Urgente", "Reunión", "Estudio"]
     ESTADOS = ["En progreso", "Completada"]
 
-    def __init__(self, titulo=None, descripcion=None, fecha_inicio=None, fecha_vencimiento=None, etiqueta=None, nombre_archivo=None, fila_archivo=None):
+    def __init__(self, titulo=None, descripcion=None, fecha_inicio=None, fecha_vencimiento=None, etiqueta=None):
         if not titulo:
             self.titulo = self.ingresar_dato("Título")
             self.descripcion = self.ingresar_dato("Descripción")
             self.fecha_inicio = self.ingresar_fecha("inicio")
             self.fecha_vencimiento = self.ingresar_fecha("vencimiento")
             self.etiqueta = self.seleccionar_etiqueta()
-            self.nombre_archivo = self.ingresar_dato("Nombre de archivo")
-            self.fila_archivo = self.ingresar_dato("Fila")
+
         else:
             self.titulo = titulo
             self.descripcion = descripcion
             self.fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d %H:%M')
             self.fecha_vencimiento = datetime.strptime(fecha_vencimiento, '%Y-%m-%d %H:%M')
             self.etiqueta = etiqueta
-            self.nombre_archivo = nombre_archivo
-            self.fila_archivo = fila_archivo
+
 
     def get_titulo(self):
         return self.titulo
@@ -117,7 +115,7 @@ class Tarea:
             file.write(f"{self.titulo}|{self.descripcion}|"
                        f"{self.fecha_inicio.strftime('%Y-%m-%d %H:%M')}|"
                        f"{self.fecha_vencimiento.strftime('%Y-%m-%d %H:%M')}|"
-                       f"{self.etiqueta}|{self.nombre_archivo}|{self.fila_archivo}\n")
+                       f"{self.etiqueta}\n")
 
     #
     @staticmethod
@@ -251,10 +249,9 @@ class Tarea:
             with open(archivo, 'r') as file:
                 tareas = file.readlines()
                 for tarea in tareas:
-                    titulo, descripcion, fecha_inicio, fecha_vencimiento, etiqueta, nombre_archivo, fila_archivo = tarea.strip().split("|")
+                    titulo, descripcion, fecha_inicio, fecha_vencimiento, etiqueta = tarea.strip().split("|")
                     print(f"Título: {titulo}\nDescripción: {descripcion}\n"
-                        f"Fecha de Inicio: {fecha_inicio}\nFecha de Vencimiento: {fecha_vencimiento}\n"
-                        f"Etiqueta: {etiqueta}\nNombre de archivo: {nombre_archivo}\nFila: {fila_archivo}\n")
+                        f"Fecha de Inicio: {fecha_inicio}\nFecha de Vencimiento: {fecha_vencimiento}\nEtiqueta: {etiqueta}\n")
         else:
             print(f"El usuario {usuario} no tiene tareas guardadas.")
 
