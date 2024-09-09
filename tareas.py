@@ -24,10 +24,11 @@ class Tarea:
             self.nombre_archivo = nombre_archivo
             self.fila_archivo = fila_archivo
 
+    #
     def ingresar_dato(self, dato):
         entrada = input(f"Ingresar {dato}: ")
         return entrada
-
+    #
     def ingresar_fecha(self, option):
         while True:
             try:
@@ -39,7 +40,7 @@ class Tarea:
                 return fecha
             except ValueError:
                 print("Formato de fecha y hora incorrecto. Por favor, ingrese la fecha en el formato 'YYYY-MM-DD HH:MM'.")
-
+    #
     def seleccionar_etiqueta(self):
         print("\n--- Selección de Etiquetas ---")
         for i, etiqueta in enumerate(Tarea.ETIQUETAS_PREDEFINIDAS, start=1):
@@ -61,6 +62,7 @@ class Tarea:
             else:
                 print("Entrada inválida, debe ingresar un número.")
 
+    #
     def mostrar_tarea(self):
         fecha_inicio_formateada = self.fecha_inicio.strftime('%Y-%m-%d %H:%M')
         fecha_vencimiento_formateada = self.fecha_vencimiento.strftime('%Y-%m-%d %H:%M')
@@ -72,6 +74,7 @@ class Tarea:
                 f"Nombre de archivo: {self.nombre_archivo}\n"
                 f"Fila: {self.fila_archivo}")
 
+    #
     def guardar_en_archivo(self, usuario):
         archivo = f"{usuario}_tareas.txt"
         with open(archivo, 'a') as file:
@@ -80,6 +83,7 @@ class Tarea:
                        f"{self.fecha_vencimiento.strftime('%Y-%m-%d %H:%M')}|"
                        f"{self.etiqueta}|{self.nombre_archivo}|{self.fila_archivo}\n")
 
+    #
     @staticmethod
     def eliminar_tarea(usuario, titulo):
         archivo = f"{usuario}_tareas.txt"
@@ -99,6 +103,7 @@ class Tarea:
                 file.writelines(tareas_modificadas)
             print("Tarea eliminada con éxito.")
 
+    #
     @staticmethod
     def modificar_tarea(usuario, titulo):
         archivo = f"{usuario}_tareas.txt"
@@ -130,6 +135,7 @@ class Tarea:
         else:
             print("No se encontró la tarea con ese título.")
     
+    #
     @staticmethod
     def cambiar_estado(usuario, titulo):
         archivo = f"{usuario}_tareas.txt"
@@ -168,14 +174,17 @@ class Tarea:
         else:
             print("No se encontró la tarea con ese título.")
 
+#
 def cargar_credenciales(archivo):
     with open(archivo, 'r') as f:
         return json.load(f)
 
+#
 def verificar_credenciales(usuario, contrasena, archivo):
     credenciales = cargar_credenciales(archivo)
     return credenciales.get(usuario) == contrasena
 
+#
 def mostrar_tareas_usuario(usuario):
     archivo = f"{usuario}_tareas.txt"
     if os.path.exists(archivo):
@@ -195,6 +204,7 @@ def guardar_credenciales(credenciales, archivo):
     with open(archivo, 'w') as f:
         json.dump(credenciales, f)
 
+#
 def agregar_credenciales(usuario, contrasena, archivo):
     credenciales = cargar_credenciales(archivo)
     credenciales[usuario] = contrasena
@@ -236,6 +246,7 @@ def menu_credenciales():
         else:
             print("Opción no válida, por favor selecciona una opción correcta.")
 
+#
 def menu(usuario):
     while True:
         print("\n--- Menú de Tareas ---")
