@@ -130,23 +130,60 @@ class Tarea:
                 f"Descripción: {self.descripcion}\n"
                 f"Fecha de Inicio: {fecha_inicio_formateada}\n"
                 f"Fecha de Vencimiento: {fecha_vencimiento_formateada}\n"
-                f"Etiqueta: {self.etiqueta}\n"
-                f"Estado: {self.estado}")
+                f"Etiqueta: {self.etiqueta}")
 
     #
-    def guardar_en_archivo(self, usuario, logger):
-        try:
-            archivo = f"{usuario}_tareas.txt"
-            with open(archivo, 'a') as file:
-                file.write(f"{self.titulo}|{self.descripcion}|"
-                           f"{self.fecha_inicio.strftime('%Y-%m-%d %H:%M')}|"
-                           f"{self.fecha_vencimiento.strftime('%Y-%m-%d %H:%M')}|"
-                           f"{self.etiqueta}|"
-                           f"{self.estado}\n")
-            logger.info("Tarea guardada en archivo")
-        except:
-            logger.warning("Ocurrio un problema al guardar la tarea")
-            print("Ocurrio un problema guardando la tarea. Por favor, intente nuevamente \n")
+    def guardar_en_archivo(self, usuario):
+        archivo = f"{usuario}_tareas.txt"
+        with open(archivo, 'a') as file:
+            file.write(f"{self.titulo}|{self.descripcion}|"
+                       f"{self.fecha_inicio.strftime('%Y-%m-%d %H:%M')}|"
+                       f"{self.fecha_vencimiento.strftime('%Y-%m-%d %H:%M')}|"
+                       f"{self.etiqueta}\n")
+    
+    def mostrar_etiquetas():
+        print("Etiquetas actuales:")
+        for etiqueta in Tarea.ETIQUETAS_PREDEFINIDAS:
+            print(f"- {etiqueta}")
+
+    # Función para agregar una etiqueta
+    def agregar_etiqueta(etiqueta):
+        if etiqueta not in Tarea.ETIQUETAS_PREDEFINIDAS:
+            ETIQUETAS_PREDEFINIDAS.append(etiqueta)
+            print(f"Etiqueta '{etiqueta}' agregada con éxito.")
+        else:
+            print(f"La etiqueta '{etiqueta}' ya existe.")
+
+    # Función para eliminar una etiqueta
+    def eliminar_etiqueta(etiqueta):
+        if etiqueta in Tarea.ETIQUETAS_PREDEFINIDAS:
+            ETIQUETAS_PREDEFINIDAS.remove(etiqueta)
+            print(f"Etiqueta '{etiqueta}' eliminada con éxito.")
+        else:
+            print(f"La etiqueta '{etiqueta}' no existe.")
+
+    @staticmethod
+    def editar_etiqueta():
+        print("\n--- Menú de edición de Etiquetas ---")
+        print("1. Mostrar etiquetas")
+        print("2. Agregar etiqueta")
+        print("3. Eliminar etiqueta")
+        print("4. salir")
+        opcion = input("Elija una operación: \n")
+
+        if opcion == "1" :
+            print("Etiquetas existentes:\n")
+            Tarea.mostrar_etiquetas()
+        elif opcion == "2":
+            etiqueta = input("Ingrese nombre de nueva etiqueta:")
+            Tarea.agregar_etiqueta(etiqueta)
+        elif opcion == "3":
+            etiqueta = input("Ingrese nombre de a eliminar:")
+            Tarea.eliminar_etiqueta(etiqueta)
+        elif opcion == "3":
+            print("volviendo a menú\n")     
+                f"Etiqueta: {self.etiqueta}\n"
+                f"Estado: {self.estado}")
 
     def mostrar_etiquetas(logger):
         try:
@@ -666,6 +703,7 @@ def menu(usuario, logger):
             Tarea.cambiar_estado(usuario, titulo, logger)
         elif opcion == "7":
             Tarea.editar_etiqueta(logger)
+
         elif opcion == "8":
             print("Saliendo del programa.")
             break
