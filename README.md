@@ -18,5 +18,5 @@ Step-by-step instructions on how to install the project locally.
 ```bash
 # Ejemplo de ejecución
 git clone https://github.com/Equipo-15/Tarea_SD_1
-cd repo
+cd Tarea_SD_1
 python3 tareas.py
