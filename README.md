@@ -3,7 +3,7 @@
 ## Table of Contents
 - [Descripción](#Descripción)
 - [Ejecución](#Ejecución)
-- [Modo de uso](#Modo de uso)
+- [Navegación](#Navegación)
 
 ## Descripción
 Este programa de registro y administración de tareas es de gran ayuda para organizar tiempos y priorizar actividades.
@@ -17,7 +17,6 @@ git clone https://github.com/Equipo-15/Tarea_SD_1
 cd Tarea_SD_1
 python3 tareas.py
 ```
-## Modo de uso
+## Navegación
 El programa tiene un menú con opciones seleccionables del 1 al 8.
 El ingreso de tareas se realiza con el teclado.
-
