@@ -3,8 +3,8 @@
 ## Tabla de contenidos
 - [Descripción](#Descripción)
 - [Instalación](#Instalación)
-- [Cómo-usar](#Cóm-Usar)
-- [Cómo-contribuir](#Cómo-contribuir)
+- [Cómo usar](#Cóm-Usar)
+- [Cómo contribuir](#Cómo-contribuir)
 - [Licencia](#Licencia)
 
 ## Descripción
