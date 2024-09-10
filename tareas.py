@@ -181,9 +181,7 @@ class Tarea:
             etiqueta = input("Ingrese nombre de a eliminar:")
             Tarea.eliminar_etiqueta(etiqueta)
         elif opcion == "3":
-            print("volviendo a menú\n")     
-                f"Etiqueta: {self.etiqueta}\n"
-                f"Estado: {self.estado}")
+            print("volviendo a menú\n")
 
     def mostrar_etiquetas(logger):
         try:
