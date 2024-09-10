@@ -3,20 +3,21 @@
 ## Table of Contents
 - [Descripción](#Descripción)
 - [Ejecución](#Ejecución)
-- [Usage](#usage)
-- [Features](#features)
-- [API Reference](#api-reference)
-- [Contributing](#contributing)
-- [License](#license)
+- [Modo de uso](#Modo de uso)
 
 ## Descripción
-A brief description of what your project does, its purpose, and any key details that might be important for users.
+Este programa de registro y administración de tareas es de gran ayuda para organizar tiempos y priorizar actividades.
 
 ## Ejecución
-Step-by-step instructions on how to install the project locally.
+Para descargar del repositorio y ejecutar, puedes utilizar los siguientes comandos.
 
 ```bash
 # Ejemplo de ejecución
 git clone https://github.com/Equipo-15/Tarea_SD_1
 cd Tarea_SD_1
 python3 tareas.py
+```
+## Modo de uso
+El programa tiene un menú con opciones seleccionables del 1 al 8.
+El ingreso de tareas se realiza con el teclado.
+
