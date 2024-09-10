@@ -57,3 +57,8 @@
 2024-09-09 20:47,493 __main__ INFO Estado de tarea Tarea 1 cambiado
 2024-09-09 21:18,363 __main__ INFO Ingreso de usuario Felipe
 2024-09-09 21:18,776 __main__ INFO Tareas del usuario Felipe impresas en consola
+2024-09-09 22:23,188 __main__ INFO Creación de usuario Ignacio
+2024-09-09 22:24,6 __main__ INFO Ingreso de usuario Ignacio
+2024-09-09 22:26,656 __main__ WARNING Ocurrio un problema al ingresar al usuario Ignacio 
+2024-09-09 22:26,682 __main__ INFO Ingreso de usuario Ignacio
+2024-09-09 22:29,788 __main__ WARNING Ocurrio un problema al ingresar al usuario Ignacio 
