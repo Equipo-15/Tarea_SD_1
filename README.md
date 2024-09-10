@@ -3,8 +3,8 @@
 ## Tabla de contenidos
 - [Descripción](#Descripción)
 - [Instalación](#Instalación)
-- [Cómo usar](#Cómo_usar)
-- [Cómo contribuir](#Cómo_contribuir)
+- [Cómo-usar](#Cóm-Usar)
+- [Cómo-contribuir](#Cómo-contribuir)
 - [Licencia](#Licencia)
 
 ## Descripción
@@ -19,11 +19,12 @@ git clone https://github.com/Equipo-15/Tarea_SD_1
 cd Tarea_SD_1
 python3 tareas.py
 ```
-## Como_usar
+## Como-usar
 El programa tiene un menú con opciones seleccionables del 1 al 8.
 El ingreso de tareas se realiza con el teclado.
 
-## Como_contribuir
+## Como-contribuir
 Puedes contribuir realizando "fork" a este [repositorio](https://github.com/Equipo-15/Tarea_SD_1)
 
 ## Licencia
+Programa de libre uso para uso personal.
