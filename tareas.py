@@ -1,18 +1,20 @@
 from datetime import datetime
 import json
+import logging
 import os
 
 class Tarea:
     ETIQUETAS_PREDEFINIDAS = ["Trabajo", "Personal", "Urgente", "Reunión", "Estudio"]
-    ESTADOS = ["En progreso", "Completada"]
+    ESTADOS = ["Creada", "En progreso", "Completada"]
 
-    def __init__(self, titulo=None, descripcion=None, fecha_inicio=None, fecha_vencimiento=None, etiqueta=None):
+    def __init__(self, titulo=None, descripcion=None, fecha_inicio=None, fecha_vencimiento=None, etiqueta=None, estado=ESTADOS[0]):
         if not titulo:
             self.titulo = self.ingresar_dato("Título")
             self.descripcion = self.ingresar_dato("Descripción")
             self.fecha_inicio = self.ingresar_fecha("inicio")
             self.fecha_vencimiento = self.ingresar_fecha("vencimiento")
             self.etiqueta = self.seleccionar_etiqueta()
+            self.estado = estado
 
         else:
             self.titulo = titulo
@@ -20,6 +22,7 @@ class Tarea:
             self.fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d %H:%M')
             self.fecha_vencimiento = datetime.strptime(fecha_vencimiento, '%Y-%m-%d %H:%M')
             self.etiqueta = etiqueta
+            self.estado = estado
 
 
     def get_titulo(self):
@@ -70,6 +73,8 @@ class Tarea:
                 elif option == "vencimiento":
                     entrada = input("Ingrese la fecha y hora de vencimiento (YYYY-MM-DD HH:MM): ")
                 fecha = datetime.strptime(entrada, '%Y-%m-%d %H:%M')
+
+                
                 return fecha
             except ValueError:
                 print("Formato de fecha y hora incorrecto. Por favor, ingrese la fecha en el formato 'YYYY-MM-DD HH:MM'.")
@@ -96,8 +101,29 @@ class Tarea:
                 print("Entrada inválida, debe ingresar un número.")
 
     #
+    def seleccionar_estado(self):
+        print("\n--- Selección de Estado ---")
+        for i, etiqueta in enumerate(Tarea.ETIQUETAS_PREDEFINIDAS, start=1):
+            print(f"{i}. {etiqueta}")
+        print(f"{len(Tarea.ETIQUETAS_PREDEFINIDAS) + 1}. Ingresar una etiqueta personalizada")
+
+        while True:
+            opcion = input("Seleccione una opción: ")
+
+            if opcion.isdigit():
+                opcion = int(opcion)
+
+                if 1 <= opcion <= len(Tarea.ETIQUETAS_PREDEFINIDAS):
+                    return Tarea.ETIQUETAS_PREDEFINIDAS[opcion - 1]
+                elif opcion == len(Tarea.ETIQUETAS_PREDEFINIDAS) + 1:
+                    return self.ingresar_dato("Etiqueta personalizada")
+                else:
+                    print("Opción no válida, intente de nuevo.")
+            else:
+                print("Entrada inválida, debe ingresar un número.")
+
+    #
     def mostrar_tarea(self):
-        fecha_inicio_formateada = self.fecha_inicio.strftime('%Y-%m-%d %H:%M')
         fecha_inicio_formateada = self.fecha_inicio.strftime('%Y-%m-%d %H:%M')
         fecha_vencimiento_formateada = self.fecha_vencimiento.strftime('%Y-%m-%d %H:%M')
         return (f"Título: {self.titulo}\n"
@@ -156,100 +182,180 @@ class Tarea:
             Tarea.eliminar_etiqueta(etiqueta)
         elif opcion == "3":
             print("volviendo a menú\n")     
+                f"Etiqueta: {self.etiqueta}\n"
+                f"Estado: {self.estado}")
 
-    #
-    @staticmethod
-    def eliminar_tarea(usuario, titulo):
-        archivo = f"{usuario}_tareas.txt"
-        if not os.path.exists(archivo):
-            print("No hay tareas que eliminar.")
-            return
+    def mostrar_etiquetas(logger):
+        try:
+            print("Etiquetas actuales:")
+            for etiqueta in Tarea.ETIQUETAS_PREDEFINIDAS:
+                print(f"- {etiqueta}")
+            logger.info("Etiquetas mostradas")
+        except:
+            logger.warning("Ocurrio un problema al mostrar las etiquetas")
+            print("Ocurrio un problema durante la operación. Por favor, intente nuevamente \n")
 
-        with open(archivo, 'r') as file:
-            tareas = file.readlines()
-
-        tareas_modificadas = [tarea for tarea in tareas if not tarea.startswith(titulo + "|")]
-
-        if len(tareas) == len(tareas_modificadas):
-            print("No se encontró la tarea con ese título.")
-        else:
-            with open(archivo, 'w') as file:
-                file.writelines(tareas_modificadas)
-            print("Tarea eliminada con éxito.")
-
-    #
-    @staticmethod
-    def modificar_tarea(usuario, titulo):
-        archivo = f"{usuario}_tareas.txt"
-        if not os.path.exists(archivo):
-            print("No hay tareas para modificar.")
-            return
-
-        with open(archivo, 'r') as file:
-            tareas = file.readlines()
-
-        tareas_modificadas = []
-        tarea_encontrada = False
-        for tarea in tareas:
-            if tarea.startswith(titulo + "|"):
-                print("Modificando tarea...")
-                nueva_tarea = Tarea()  # Crear una nueva tarea con los datos modificados
-                tarea_encontrada = True
-                tareas_modificadas.append(f"{nueva_tarea.titulo}|{nueva_tarea.descripcion}|"
-                                          f"{nueva_tarea.fecha_inicio.strftime('%Y-%m-%d %H:%M')}|"
-                                          f"{nueva_tarea.fecha_vencimiento.strftime('%Y-%m-%d %H:%M')}|"
-                                          f"{nueva_tarea.etiqueta}|{nueva_tarea.nombre_archivo}|{nueva_tarea.fila_archivo}\n")
+    # Función para agregar una etiqueta
+    def agregar_etiqueta(etiqueta, logger):
+        try:
+            if etiqueta not in Tarea.ETIQUETAS_PREDEFINIDAS:
+                Tarea.ETIQUETAS_PREDEFINIDAS.append(etiqueta)
+                logger.info(f"Etiqueta {etiqueta} agregada")
+                print(f"Etiqueta '{etiqueta}' agregada con éxito.")
             else:
-                tareas_modificadas.append(tarea)
+                print(f"La etiqueta '{etiqueta}' ya existe.")
 
-        if tarea_encontrada:
-            with open(archivo, 'w') as file:
-                file.writelines(tareas_modificadas)
-            print("Tarea modificada con éxito.")
-        else:
-            print("No se encontró la tarea con ese título.")
+        except:
+            logger.warning("Ocurrio un problema al agregar las etiquetas")
+            print("Ocurrio un problema durante la operación. Por favor, intente nuevamente \n")            
+
+    # Función para eliminar una etiqueta
+    def eliminar_etiqueta(etiqueta, logger):
+        try:
+            if etiqueta in Tarea.ETIQUETAS_PREDEFINIDAS:
+                Tarea.ETIQUETAS_PREDEFINIDAS.remove(etiqueta)
+                logger.info(f"Etiqueta {etiqueta} eliminada")
+                print(f"Etiqueta '{etiqueta}' eliminada con éxito.")
+            else:
+                print(f"La etiqueta '{etiqueta}' no existe.")
+        
+        except:
+            logger.warning("Ocurrio un problema al eliminar las etiquetas")
+            print("Ocurrio un problema durante la operación. Por favor, intente nuevamente \n")
+
+    @staticmethod
+    def editar_etiqueta(logger):
+        print("\n--- Menú de edición de Etiquetas ---")
+        print("1. Mostrar etiquetas")
+        print("2. Agregar etiqueta")
+        print("3. Eliminar etiqueta")
+        print("4. salir")
+        opcion = input("Elija una operación: \n")
+
+        if opcion == "1" :
+            print("Etiquetas existentes:\n")
+            Tarea.mostrar_etiquetas(logger)
+        elif opcion == "2":
+            etiqueta = input("Ingrese nombre de nueva etiqueta:")
+            Tarea.agregar_etiqueta(etiqueta, logger)
+        elif opcion == "3":
+            etiqueta = input("Ingrese nombre de a eliminar:")
+            Tarea.eliminar_etiqueta(etiqueta, logger)
+        elif opcion == "3":
+            print("volviendo a menú\n")
     
     #
     @staticmethod
-    def cambiar_estado(usuario, titulo):
+    def eliminar_tarea(usuario, titulo, logger):
         archivo = f"{usuario}_tareas.txt"
-        if not os.path.exists(archivo):
-            print("No hay tareas para modificar el estado.")
-            return
 
-        with open(archivo, 'r') as file:
-            tareas = file.readlines()
+        try:
+            if not os.path.exists(archivo):
+                print("No hay tareas que eliminar.")
+                return
 
-        tareas_modificadas = []
-        tarea_encontrada = False
-        for tarea in tareas:
-            datos = tarea.strip().split("|")
-            if datos[0] == titulo:
-                print("\n--- Cambiar Estado ---")
-                for i, estado in enumerate(Tarea.ESTADOS, start=1):
-                    print(f"{i}. {estado}")
-                opcion = input("Seleccione el nuevo estado: ")
+            with open(archivo, 'r') as file:
+                tareas = file.readlines()
 
-                if opcion.isdigit() and 1 <= int(opcion) <= len(Tarea.ESTADOS):
-                    nuevo_estado = Tarea.ESTADOS[int(opcion) - 1]
-                    datos[5] = nuevo_estado  # Actualizar el estado en los datos
-                    tarea_encontrada = True
-                    tareas_modificadas.append("|".join(datos) + "\n")
-                else:
-                    print("Opción no válida, el estado no fue cambiado.")
-                    return
+            tareas_modificadas = [tarea for tarea in tareas if not tarea.startswith(titulo + "|")]
+
+            if len(tareas) == len(tareas_modificadas):
+                print("No se encontró la tarea con ese título.")
             else:
-                tareas_modificadas.append(tarea)
+                with open(archivo, 'w') as file:
+                    file.writelines(tareas_modificadas)
+                logger.info(f"Tarea {titulo} eliminada")
+                print("Tarea eliminada con éxito.")
+        except:
+            logger.warning("Ocurrio un problema durante la eliminación de la tarea")
+            print("Ocurrio un problema durante la operación. Por favor, intente nuevamente \n")
 
-        if tarea_encontrada:
-            with open(archivo, 'w') as file:
-                file.writelines(tareas_modificadas)
-            print("Estado de la tarea cambiado con éxito.")
-        else:
-            print("No se encontró la tarea con ese título.")
+    #
+    @staticmethod
+    def modificar_tarea(usuario, titulo, logger):
+        archivo = f"{usuario}_tareas.txt"
+
+        try:
+            if not os.path.exists(archivo):
+                print("No hay tareas para modificar.")
+                return
+
+            with open(archivo, 'r') as file:
+                tareas = file.readlines()
+
+            tareas_modificadas = []
+            tarea_encontrada = False
+            for tarea in tareas:
+                if tarea.startswith(titulo + "|"):
+                    print("Modificando tarea...")
+                    nueva_tarea = Tarea()  # Crear una nueva tarea con los datos modificados
+                    tarea_encontrada = True
+                    tareas_modificadas.append(f"{nueva_tarea.titulo}|{nueva_tarea.descripcion}|"
+                                              f"{nueva_tarea.fecha_inicio.strftime('%Y-%m-%d %H:%M')}|"
+                                              f"{nueva_tarea.fecha_vencimiento.strftime('%Y-%m-%d %H:%M')}|"
+                                              f"{nueva_tarea.etiqueta}|{nueva_tarea.estado}\n")
+                else:
+                    tareas_modificadas.append(tarea)
+
+            if tarea_encontrada:
+                with open(archivo, 'w') as file:
+                    file.writelines(tareas_modificadas)
+                    logger.info(f"Tarea {titulo} modificada")
+                print("Tarea modificada con éxito.")
+            else:
+                print("No se encontró la tarea con ese título.")
+        except:
+            logger.warning("Ocurrio un problema al modificar la tarea")
+            print("Ocurrio un problema durante la operación. Por favor, intente nuevamente \n")
+    
+    #
+    @staticmethod
+    def cambiar_estado(usuario, titulo, logger):
+        archivo = f"{usuario}_tareas.txt"
+
+        try:
+            if not os.path.exists(archivo):
+                print("No hay tareas para modificar el estado.")
+                return
+
+            with open(archivo, 'r') as file:
+                tareas = file.readlines()
+
+            tareas_modificadas = []
+            tarea_encontrada = False
+            for tarea in tareas:
+                datos = tarea.strip().split("|")
+                if datos[0] == titulo:
+                    print("\n--- Cambiar Estado ---")
+                    for i, estado in enumerate(Tarea.ESTADOS, start=1):
+                        print(f"{i}. {estado}")
+                    opcion = input("Seleccione el nuevo estado: ")
+
+                    if opcion.isdigit() and 1 <= int(opcion) <= len(Tarea.ESTADOS):
+                        nuevo_estado = Tarea.ESTADOS[int(opcion) - 1]
+                        datos[5] = nuevo_estado  # Actualizar el estado en los datos
+                        tarea_encontrada = True
+                        tareas_modificadas.append("|".join(datos) + "\n")
+                    else:
+                        print("Opción no válida, el estado no fue cambiado.")
+                        return
+                else:
+                    tareas_modificadas.append(tarea)
+
+            if tarea_encontrada:
+                with open(archivo, 'w') as file:
+                    file.writelines(tareas_modificadas)
+                logger.info(f"Estado de tarea {titulo} cambiado")
+                print("Estado de la tarea cambiado con éxito.")
+            else:
+                print("No se encontró la tarea con ese título.")
+
+        except:
+            logger.warning("Ocurrio un problema al modificar la tarea")
+            print("Ocurrio un problema durante la operación. Por favor, intente nuevamente \n")
 
     @staticmethod
-    def filtrar_tarea(usuario):
+    def filtrar_tarea(usuario, logger):
         archivo = f"{usuario}_tareas.txt"
         if not os.path.exists(archivo):
             print("No hay tareas para modificar el estado.")
@@ -259,7 +365,7 @@ class Tarea:
 
         print("\t Ingrese 1 para filtrar según titulo \n \t Ingrese 2 para filtrar según descripción \t")
         print("\t Ingrese 3 para filtrar según fecha de inicio \n \t Ingrese 4 para filtrar según fecha de vencimiento \t")
-        print("\t Ingrese 5 para filtrar según etiqueta \n")
+        print("\t Ingrese 5 para filtrar según etiqueta \n \t Ingrese 6 para filtrar según estado \n")
 
         opcion = input("Elija un campo para aplicar filtro: \n")
 
@@ -272,27 +378,32 @@ class Tarea:
                     campos = tarea.strip("\n").split("|")
 
                     if(campos[int(opcion) - 1] == filtro):
-                        new_tarea = Tarea(campos[0], campos[1], campos[2], campos[3], campos[4])
+                        new_tarea = Tarea(campos[0], campos[1], campos[2], campos[3], campos[4], campos[5])
                         print("* \t" + new_tarea.mostrar_tarea() + "\n")
+            logger.info("Tareas mostradas con filtros aplicados")
 
         except:
+            logger.warning("Ocurrio un problema al filtrar las tareas")
             print("Ocurrio un problema durante la operación. Por favor, intente nuevamente \n")
-
-        return
     
     @staticmethod
-    def mostrar_tareas_usuario(usuario):
-        archivo = f"{usuario}_tareas.txt"
-        if os.path.exists(archivo):
-            print(f"Tareas de {usuario}:")
-            with open(archivo, 'r') as file:
-                tareas = file.readlines()
-                for tarea in tareas:
-                    titulo, descripcion, fecha_inicio, fecha_vencimiento, etiqueta = tarea.strip().split("|")
-                    print(f"Título: {titulo}\nDescripción: {descripcion}\n"
-                        f"Fecha de Inicio: {fecha_inicio}\nFecha de Vencimiento: {fecha_vencimiento}\nEtiqueta: {etiqueta}\n")
-        else:
-            print(f"El usuario {usuario} no tiene tareas guardadas.")
+    def mostrar_tareas_usuario(usuario, logger):
+        try:
+            archivo = f"{usuario}_tareas.txt"
+            if os.path.exists(archivo):
+                print(f"Tareas de {usuario}:")
+                with open(archivo, 'r') as file:
+                    tareas = file.readlines()
+                    for tarea in tareas:
+                        titulo, descripcion, fecha_inicio, fecha_vencimiento, etiqueta, estado = tarea.strip().split("|")
+                        print(f"Título: {titulo}\nDescripción: {descripcion}\n"
+                            f"Fecha de Inicio: {fecha_inicio}\nFecha de Vencimiento: {fecha_vencimiento}\nEtiqueta: {etiqueta}\nEstado: {estado}\n")
+                logger.info(f"Tareas del usuario {usuario} impresas en consola")
+            else:
+                print(f"El usuario {usuario} no tiene tareas guardadas.")
+        except:
+            logger.warning("No se logro mostrar la tarea")
+            print("Ocurrio un problema durante la operación. Por favor, intente nuevamente \n")
 
 #
 def cargar_credenciales(archivo):
@@ -317,6 +428,14 @@ def agregar_credenciales(usuario, contrasena, archivo):
 
 # Menú interactivo
 def menu_credenciales():
+    logging.basicConfig(filename="tarea1.log",
+                        filemode="a",
+                        format="%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s",
+                        datefmt="%Y-%m-%d %H:%M",
+                        level=logging.DEBUG)
+    
+    logger = logging.getLogger(__name__)
+    
     archivo = 'credenciales.json'
     
     while True:
@@ -330,19 +449,32 @@ def menu_credenciales():
         if opcion == '1':
             usuario = input("Ingresa el usuario: ")
             contrasena = input("Ingresa la contraseña: ")
-            if verificar_credenciales(usuario, contrasena, archivo):
-                print("Acceso concedido")
-                #mostrar menú con usuario logeado
-                menu(usuario)
-                break
-            else:
-                print("Acceso denegado")
+            
+            try:
+                if verificar_credenciales(usuario, contrasena, archivo):
+                    logger.info(f"Ingreso de usuario {usuario}")
+                    print("Acceso concedido")
+                    #mostrar menú con usuario logeado
+                    menu(usuario, logger)
+                    break
+                else:
+                    print(f"Acceso denegado")
+            
+            except:
+                logger.warning(f"Ocurrio un problema al ingresar al usuario {usuario} ")
+                print("Ocurrio un problema durante el ingreso.\n")
+
         
         elif opcion == '2':
-            usuario = input("Ingresa el nuevo usuario: ")
-            contrasena = input("Ingresa la nueva contraseña: ")
-            agregar_credenciales(usuario, contrasena, archivo)
-            print("Credenciales agregadas exitosamente")
+            try:
+                usuario = input("Ingresa el nuevo usuario: ")
+                contrasena = input("Ingresa la nueva contraseña: ")
+                agregar_credenciales(usuario, contrasena, archivo)
+                logger.info(f"Creación de usuario {usuario}")
+                print("Credenciales agregadas exitosamente")
+            except:
+                logger.warning("Ocurrio un problema al crear usuario")
+                print("Ocurrio un problema durante la creación.\n")
         
         elif opcion == '3':
             print("Saliendo del programa...")
@@ -541,12 +673,12 @@ def eliminar_tarea():
 """
 
 #
-def menu(usuario):
+def menu(usuario, logger):
     while True:
         print(" ---- Bienvenido al sistema de Gestión de Tareas ---- \n")
         print(" --- Operaciones disponibles: --- \n")
 
-        print("\t Ingrese 1 para Crear tarea \n \t Ingrese 2 para Consultar tarea \t")
+        print("\t Ingrese 1 para Crear tarea \n \t Ingrese 2 para Mostrar tareas \t")
         print("\t Ingrese 3 para Actualizar tarea \n \t Ingrese 4 para Filtar tareas \t")
         print("\t Ingrese 5 para Eliminar tarea \n \t Ingrese 6 para modificar estado \t")
         print("\t Ingrese 7 para modificar etiquetas \n \t Ingrese 8 para salir del sistema \t")
@@ -554,23 +686,24 @@ def menu(usuario):
 
         if opcion == "1":
             tarea = Tarea()
-            tarea.guardar_en_archivo(usuario)
+            tarea.guardar_en_archivo(usuario, logger)
         elif opcion == "2":
-            Tarea.mostrar_tareas_usuario(usuario)
+            Tarea.mostrar_tareas_usuario(usuario, logger)
         elif opcion == "3":
             titulo = input("Ingrese el título de la tarea que desea modificar: ")
-            Tarea.modificar_tarea(usuario, titulo)
+            Tarea.modificar_tarea(usuario, titulo, logger)
         elif opcion == "4":
             #filtrar
-            Tarea.filtrar_tarea(usuario)
+            Tarea.filtrar_tarea(usuario, logger)
         elif opcion == "5":
             titulo = input("Ingrese el título de la tarea que desea eliminar: ")
-            Tarea.eliminar_tarea(usuario, titulo)
+            Tarea.eliminar_tarea(usuario, titulo, logger)
         elif opcion == "6":
             titulo = input("Ingrese el título de la tarea que desea modifar el estado: ")
-            Tarea.cambiar_estado(usuario, titulo)
+            Tarea.cambiar_estado(usuario, titulo, logger)
         elif opcion == "7":
-            Tarea.editar_etiqueta()
+            Tarea.editar_etiqueta(logger)
+
         elif opcion == "8":
             print("Saliendo del programa.")
             break
