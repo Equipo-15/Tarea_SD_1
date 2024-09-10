@@ -130,16 +130,23 @@ class Tarea:
                 f"Descripción: {self.descripcion}\n"
                 f"Fecha de Inicio: {fecha_inicio_formateada}\n"
                 f"Fecha de Vencimiento: {fecha_vencimiento_formateada}\n"
-                f"Etiqueta: {self.etiqueta}")
+                f"Etiqueta: {self.etiqueta}"
+                f"Estado: {self.estado}")
 
     #
-    def guardar_en_archivo(self, usuario):
-        archivo = f"{usuario}_tareas.txt"
-        with open(archivo, 'a') as file:
-            file.write(f"{self.titulo}|{self.descripcion}|"
-                       f"{self.fecha_inicio.strftime('%Y-%m-%d %H:%M')}|"
-                       f"{self.fecha_vencimiento.strftime('%Y-%m-%d %H:%M')}|"
-                       f"{self.etiqueta}\n")
+    def guardar_en_archivo(self, usuario, logger):
+        try:
+            archivo = f"{usuario}_tareas.txt"
+            with open(archivo, 'a') as file:
+                file.write(f"{self.titulo}|{self.descripcion}|"
+                        f"{self.fecha_inicio.strftime('%Y-%m-%d %H:%M')}|"
+                        f"{self.fecha_vencimiento.strftime('%Y-%m-%d %H:%M')}|"
+                        f"{self.etiqueta}|{self.estado}\n")
+            print("Tarea guardada con exito!")
+            logger.info(f"Tarea {self.titulo} guardada")
+        except:
+            logger.warning("Ocurrio un problema al guardar la tarea")
+            print("Ocurrio un problema durante la operación. Por favor, intente nuevamente \n")
     
     def mostrar_etiquetas():
         print("Etiquetas actuales:")
