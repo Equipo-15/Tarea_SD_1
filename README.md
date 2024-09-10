@@ -2,7 +2,7 @@
 
 ## Table of Contents
 - [Description](#description)
-- [Installation](#installation)
+- [Ejecución](#ejecución)
 - [Usage](#usage)
 - [Features](#features)
 - [API Reference](#api-reference)
@@ -12,7 +12,7 @@
 ## Description
 A brief description of what your project does, its purpose, and any key details that might be important for users.
 
-## Installation
+## ejecución
 Step-by-step instructions on how to install the project locally.
 
 ```bash
